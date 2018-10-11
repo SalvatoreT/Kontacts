@@ -9,13 +9,13 @@
     >
 
   <ImageView
-      android:id="@+id/profile_image"
+      android:id="@+id/row_profile_image"
       android:layout_width="60dp"
       android:layout_height="0dp"
       android:contentDescription="@string/contact_profile_image_description"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintDimensionRatio="h,1:1"
-      app:layout_constraintEnd_toStartOf="@+id/name"
+      app:layout_constraintEnd_toStartOf="@+id/row_profile_name"
       app:layout_constraintHorizontal_bias="0.0"
       app:layout_constraintHorizontal_chainStyle="packed"
       app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,7 @@
       tools:srcCompat="@tools:sample/avatars"
       />
   <TextView
-      android:id="@+id/name"
+      android:id="@+id/row_profile_name"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginEnd="8dp"
@@ -32,7 +32,7 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.0"
-      app:layout_constraintStart_toEndOf="@+id/profile_image"
+      app:layout_constraintStart_toEndOf="@+id/row_profile_image"
       app:layout_constraintTop_toTopOf="parent"
       tools:text="@tools:sample/full_names"
       />
