@@ -10,7 +10,6 @@ import android.provider.ContactsContract.Contacts
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.LoaderManager
-import android.support.v4.content.ContextCompat
 import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.support.v7.app.AppCompatActivity
@@ -46,7 +45,7 @@ class ContactListActivity : AppCompatActivity() {
       adapter = contactListViewAdapter
     }
 
-    if (ContextCompat.checkSelfPermission(
+    if (ActivityCompat.checkSelfPermission(
             this,
             Manifest.permission.READ_CONTACTS
         )
@@ -55,55 +54,55 @@ class ContactListActivity : AppCompatActivity() {
       ActivityCompat.requestPermissions(
           this, arrayOf(Manifest.permission.READ_CONTACTS), 123
       )
+    } else {
+      val loaderManager = LoaderManager.getInstance<AppCompatActivity>(this)
+      loaderManager.initLoader(0, null, object : LoaderManager.LoaderCallbacks<Cursor> {
+        override fun onCreateLoader(
+          id: Int,
+          args: Bundle?
+        ): Loader<Cursor> {
+          // Define the columns to retrieve
+          val projectionFields = arrayOf(
+              ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME,
+              ContactsContract.Contacts.PHOTO_URI
+          )
+          // Construct the loader
+          // the selection criteria
+          // Return the loader for use
+          return CursorLoader(
+              this@ContactListActivity,
+              Contacts.CONTENT_URI, // URI
+              projectionFields, // the selection args
+              null,
+              null,
+              ContactsContract.Contacts.DISPLAY_NAME
+          )
+        }
+
+        override fun onLoadFinished(
+          loader: Loader<Cursor>,
+          cursor: Cursor?
+        ) {
+          if (cursor?.isClosed == true) return
+
+          contacts = cursor?.use {
+            (0 until it.count).map { row ->
+              it.moveToPosition(row)
+              ContactListViewAdapter.Contact(
+                  image = Uri.parse(
+                      it.getString(it.getColumnIndex(ContactsContract.Contacts.PHOTO_URI)) ?: ""
+                  ),
+                  name = it.getString(it.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+              )
+            }
+          } ?: listOf()
+          contactListViewAdapter.list = contacts
+        }
+
+        override fun onLoaderReset(loader: Loader<Cursor>) {
+        }
+      })
     }
-
-    val loaderManager = LoaderManager.getInstance<AppCompatActivity>(this)
-    loaderManager.initLoader(0, null, object : LoaderManager.LoaderCallbacks<Cursor> {
-      override fun onCreateLoader(
-        id: Int,
-        args: Bundle?
-      ): Loader<Cursor> {
-        // Define the columns to retrieve
-        val projectionFields = arrayOf(
-            ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.Contacts.PHOTO_URI
-        )
-        // Construct the loader
-        // the selection criteria
-        // Return the loader for use
-        return CursorLoader(
-            this@ContactListActivity,
-            Contacts.CONTENT_URI, // URI
-            projectionFields, // the selection args
-            null,
-            null,
-            ContactsContract.Contacts.DISPLAY_NAME
-        )
-      }
-
-      override fun onLoadFinished(
-        loader: Loader<Cursor>,
-        cursor: Cursor?
-      ) {
-        if (cursor?.isClosed == true) return
-
-        contacts = cursor?.use {
-          (0 until it.count).map { row ->
-            it.moveToPosition(row)
-            ContactListViewAdapter.Contact(
-                image = Uri.parse(
-                    it.getString(it.getColumnIndex(ContactsContract.Contacts.PHOTO_URI)) ?: ""
-                ),
-                name = it.getString(it.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-            )
-          }
-        } ?: listOf()
-        contactListViewAdapter.list = contacts
-      }
-
-      override fun onLoaderReset(loader: Loader<Cursor>) {
-      }
-    })
   }
 
   override fun onSaveInstanceState(
